@@ -17,7 +17,7 @@ parser.add_option('-i', '--input', dest='inFolder', type='string', default="in.t
 parser.add_option('-g', '--genomeInfo', dest='genomeInfo', type='string', default="genome.txt", help='filepath prefix for genomic resources')
 parser.add_option('-o', '--output', dest='outFolder', type='string', default="out.txt", help='folder in which to place arff file which can be used as input for machine learning classifier')
 parser.add_option('-s', '--skip', dest='toSkip', type='int', default=4, help='number of lines to skip in input file')
-parser.add_option('-c', '--classifier', dest='classifierLoc', type='string', default="AllFeaturesPlusIdNB.model", help='location of classifier .model file to be used in weka commands output by this script')
+parser.add_option('-c', '--classifier', dest='classifierLoc', type='string', default="AllFeaturesPlusIdNB2.model", help='location of classifier .model file to be used in weka commands output by this script')
 parser.add_option('-r', '--resultsFile', dest='resultsFile', type='string', default="out2.txt", help='location to output results from Weka created using the commands output by this script')
 parser.add_option('-w', '--wekaPath', dest='wekaPath', type='string', default="weka.jar", help='location of weka.jar')
 
@@ -72,10 +72,10 @@ for root, directories, files in os.walk(options.inFolder):
 
             with open(inFile,'r') as f:
                 reader=csv.reader(f,delimiter='\t')
-				##skip first N lines, specified in options
+				##skip first N lines (typically the header), specified in options
                 for i in range(options.toSkip):
                    s = f.readline()
-				   ##grab the best possible score and RVD count from these header lines
+				   ##get the best possible score and number of RVDS from these header lines
                    if(s.find("Best Possible Score:")!=-1):
                        bestScore=float(s.split(":")[1].strip())
                    if(s.find("rvd_sequence")!=-1):
@@ -122,7 +122,7 @@ for root, directories, files in os.walk(options.inFolder):
                         disToTSS = EBELoc-TSSLocations[gene][locus]
 					##keeping track of rank and line because ties are given the same rank
 					##since only EBEs in primary transcripts were counted in the original rank computations
-					##used to make the classifier in Cernades et al, so only primary transcripts are counted in this ranking
+					##used to make the classifier in Cernades et al, only primary transcripts are counted in this ranking
 					##rank is therefore equivalent to a count of EBEs in primary transcripts with a higher score than a given EBE
 					##only increase line number if looking at an EBE in a primary transcripts
 					##only make rank equivalent to line number when score is greater than the previous score
@@ -147,7 +147,7 @@ for root, directories, files in os.walk(options.inFolder):
                                 minToYPatch=str(int(start)-Ypatches[locus].keys()[j])
                             if strand=='-':
                                 minToYPatch=str(Ypatches[locus].keys()[j]-int(start)-(talLength-2))
-                    ##if no Y patch, use a question mark which indicates a missing value
+                    ##if no Y patch in the relevant transcript, use a question mark which indicates a missing value
                     if len(Ypatches[locus].keys())==0:
                         minToYPatch='?'
                     ##the greatest distance a TATA box could be from the EBE is the length of the promoter, so initialize with that
@@ -163,14 +163,20 @@ for root, directories, files in os.walk(options.inFolder):
                                 minToTATABox=str(int(start)-TATAboxes[locus].keys()[j])
                             if strand=='-':
                                 minToTATABox=str(TATAboxes[locus].keys()[j]-int(start)-(talLength-2))
+                    ##if no TATA box in the relevant transcript, use a question mark which indicates a missing value
                     if len(TATAboxes[locus].keys())==0:
                         minToTATABox ='?'
+                    ##write a line in the weka input file for a given EBE in a given transcript
+                    ##use the distance to the transcriptional start site of this transcript if it is annotated
+                    ##otherwise, use a question mark which indicates a missing value
                     if annotatedTXS[locus]:    
                         outFile.write(locus+","+str(score)+","+str(relScore)+","+str(rank)+","+str(disToTSS)+","+str(disToTXS)+","+str(minToTATABox)+','+str(minToYPatch)+",?\n")
                     elif not annotatedTXS[locus]:
                         outFile.write(locus+","+str(score)+","+str(relScore)+","+str(rank)+","+str(disToTSS)+",?,"+str(minToTATABox)+','+str(minToYPatch)+",?\n")
+            ##close input and output files
             EBELocOut.close()        
             outFile.close()
+            ##write a command for using the machine learning classifier on the input file just written
             outScript.write("java -classpath \""+options.wekaPath+"\" weka.classifiers.bayes.NaiveBayes -l "+options.classifierLoc+" -T "+options.outFolder+"/"+filename.split(".")[0]+".arff -p 1 > \""+options.resultsFile+"/"+filename.split(".")[0]+"ClassifierResults.txt\"\n")
         
         outScript.close()
