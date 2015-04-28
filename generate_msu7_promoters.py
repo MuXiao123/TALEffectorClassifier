@@ -2,7 +2,7 @@
 """
 Created on Fri Sep 26 09:04:43 2014
 
-@author: Katie modified from Nick's generate_msu7_promoters.py script
+@author: Katie Wilkins modified from Nick Booher's generate_msu7_promoters.py script
 """
 
 from Bio import SeqIO
@@ -10,11 +10,21 @@ from Bio.SeqRecord import SeqRecord
 from msu_gff_parser import parse_gff
 import pickle
 from math import fabs
+from optparse import OptionParser
 
-genome = parse_gff("/home/kxw116/GenomicResources/OsativaMSU7/msu7_annotation.gff3")
+##parse command line options
+usage = 'usage: %prog [options]'
+parser = OptionParser(usage=usage)
+parser.add_option('-a', '--annot', dest='annot', type='string', default="msu7_annotation.gff3", help='filepath of genome annotation file')
+parser.add_option('-g', '--genome', dest='genomeLoc', type='string', default="Osativa_204_v7.fa", help='filepath of fasta format genome sequence')
+parser.add_option('-o', '--outPrefix', dest='outPrefix', type='string', default="msu7", help='filepath prefix of output files')
+(options, args) = parser.parse_args()
+
+##read in genome annotation
+genome = parse_gff(options.annot)
 
 ##read in the genome
-sequences = SeqIO.parse("/home/kxw116/GenomicResources/OsativaMSU7/Osativa_204_v7.fa", "fasta")
+sequences = SeqIO.parse(options.genomeLoc, "fasta")
 chromosome_seqs = {}
 for record in sequences:
 	chromosome_seqs[record.id] = record.seq
@@ -84,28 +94,29 @@ for chromosome in genome:
                 if PromLen[mRNA_feature["name"]] != TXStoTSS[mRNA_feature["name"]] + 1001:
                     print mRNA_feature["name"] + " doesn't have a complete promoter! Genome assembly is probably incomplete."
 
-SeqIO.write([SeqRecord(promoters[promoter], id=promoter, description="") for promoter in sorted(promoters)], "/home/kxw116/GenomicResources/OsativaMSU7/msu7_promoters.fasta", "fasta")
-outfile = open('/home/kxw116/GenomicResources/OsativaMSU7/msu7_promoters.pickled', 'wb')
+##write out promoters in fasta format and write out all genome features in pickle format
+SeqIO.write([SeqRecord(promoters[promoter], id=promoter, description="") for promoter in sorted(promoters)], options.outPrefix+"promoters.fasta", "fasta")
+outfile = open('_promoters.pickled', 'wb')
 pickle.dump(promoters, outfile)
 outfile.close()
-outfile = open('/home/kxw116/GenomicResources/OsativaMSU7/msu7_annotatedTXS.pickled', 'wb')
+outfile = open(options.outPrefix+'_annotatedTXS.pickled', 'wb')
 pickle.dump(annotatedTXS, outfile)
 outfile.close()
-outfile = open('/home/kxw116/GenomicResources/OsativaMSU7/msu7_TXStoTSS.pickled', 'wb')
+outfile = open(options.outPrefix+'_TXStoTSS.pickled', 'wb')
 pickle.dump(TXStoTSS, outfile)
 outfile.close()
-outfile = open('/home/kxw116/GenomicResources/OsativaMSU7/msu7_PromLen.pickled', 'wb')
+outfile = open(options.outPrefix+'_PromLen.pickled', 'wb')
 pickle.dump(PromLen, outfile)
 outfile.close()
-outfile = open('/home/kxw116/GenomicResources/OsativaMSU7/msu7_TXSLocations.pickled', 'wb')
+outfile = open(options.outPrefix+'_TXSLocations.pickled', 'wb')
 pickle.dump(TXSLocations, outfile)
 outfile.close()
-outfile = open('/home/kxw116/GenomicResources/OsativaMSU7/msu7_TSSLocations.pickled', 'wb')
+outfile = open(options.outPrefix+'_TSSLocations.pickled', 'wb')
 pickle.dump(TSSLocations, outfile)
 outfile.close()
-outfile = open('/home/kxw116/GenomicResources/OsativaMSU7/msu7_strands.pickled', 'wb')
+outfile = open(options.outPrefix+'_strands.pickled', 'wb')
 pickle.dump(strands, outfile)
 outfile.close()
-outfile = open('/home/kxw116/GenomicResources/OsativaMSU7/msu7_transcript_names.pickled', 'wb')
+outfile = open(options.outPrefix+'_transcript_names.pickled', 'wb')
 pickle.dump(transcriptNames, outfile)
 outfile.close()

@@ -1,11 +1,15 @@
-#! usr/bin/python
+"""
+@author: Katie Wilkins modified from Erin Doyle's script TATA_and_TLS_info_step5.py
+"""
 
-#TATA_and_TLS_info_step5.py
+from optparse import OptionParser
 
-#Description: A script to determine the distance of each TAL binding site (best sites in each promoter and 
-#those below cutoff score) from a TATA box (if any) and the transcriptional start site)
-
-#Created by Erin Doyle on Tuesday, Jan 11 2011
+##parse command line options
+usage = 'usage: %prog [options]'
+parser = OptionParser(usage=usage)
+parser.add_option('-p', '--promot', dest='promotLoc', type='string', default="msu7_promoters.pickled", help='filepath of pickle format file containing promoter sequences')
+parser.add_option('-o', '--outPrefix', dest='outPrefix', type='string', default="msu7", help='filepath prefix of output files')
+(options, args) = parser.parse_args()
 
 #Feb. 4, 2011: TATA boxes modified to reflect rice-specific frequencies in 
 #Civan and Svec, Genome 53(3), pp.294-291. 2009. TATA consensus: TATAWAWA
@@ -17,7 +21,7 @@ import pickle
 import string
 
 print 'Loading promoters...'
-promoters = pickle.load(open('/home/kxw116/GenomicResources/OsativaMSU7/msu7_promoters.pickled', 'r'))
+promoters = pickle.load(open(options.promotLoc, 'r'))
 
 ###################################################################################################
 # Section 2: Locate TATA boxes in promoters
@@ -41,7 +45,7 @@ for locus in promoters.keys():
 				TATAs[locus][position] = TATA
 			position += len(TATA)
 
-outfile = open('/home/kxw116/GenomicResources/OsativaMSU7/msu7_TATA_boxes.pickled', 'w')
+outfile = open(options.outPrefix+'_TATA_boxes.pickled', 'w')
 pickle.dump(TATAs, outfile)
 outfile.close()
 
@@ -66,6 +70,6 @@ for locus in promoters.keys():
 				y_patches[locus][position] = y_patch
 			position += len(y_patch)
 
-outfile = open('/home/kxw116/GenomicResources/OsativaMSU7/msu7_Y_patches.pickled', 'w')
+outfile = open(options.outPrefix+'_Y_patches.pickled', 'w')
 pickle.dump(y_patches, outfile)
 outfile.close()

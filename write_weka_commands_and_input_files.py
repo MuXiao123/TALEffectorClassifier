@@ -14,7 +14,7 @@ import os
 usage = 'usage: %prog [options]'
 parser = OptionParser(usage=usage)
 parser.add_option('-i', '--input', dest='inFolder', type='string', default="in.txt", help='folder full of output files from target finder')
-parser.add_option('-g', '--genomeInfo', dest='genomeInfo', type='string', default="genome.txt", help='filepath prefix for genomic resources')
+parser.add_option('-g', '--genomeInfo', dest='genomeInfo', type='string', default="msu7", help='filepath prefix for genomic resources')
 parser.add_option('-o', '--output', dest='outFolder', type='string', default="out.txt", help='folder in which to place arff file which can be used as input for machine learning classifier')
 parser.add_option('-s', '--skip', dest='toSkip', type='int', default=4, help='number of lines to skip in input file')
 parser.add_option('-c', '--classifier', dest='classifierLoc', type='string', default="AllFeaturesPlusIdNB2.model", help='location of classifier .model file to be used in weka commands output by this script')
