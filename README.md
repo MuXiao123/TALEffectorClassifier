@@ -4,7 +4,7 @@ This directory contains python scripts to take Target Finder output files and cr
 
 All source code is available under an ISC license.
 
-Copyright (c) 2011-2012, Katie Wilkins kxw116@gmail.com and Nick Booher njbooher@gmail.com.
+Copyright (c) 2015-2016, Katie Wilkins kxw116@gmail.com and Nick Booher njbooher@gmail.com.
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
 
