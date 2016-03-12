@@ -96,7 +96,7 @@ for chromosome in genome:
 
 ##write out promoters in fasta format and write out all genome features in pickle format
 SeqIO.write([SeqRecord(promoters[promoter], id=promoter, description="") for promoter in sorted(promoters)], options.outPrefix+"promoters.fasta", "fasta")
-outfile = open('_promoters.pickled', 'wb')
+outfile = open(options.outPrefix+'_promoters.pickled', 'wb')
 pickle.dump(promoters, outfile)
 outfile.close()
 outfile = open(options.outPrefix+'_annotatedTXS.pickled', 'wb')

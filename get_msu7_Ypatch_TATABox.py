@@ -24,7 +24,7 @@ print 'Loading promoters...'
 promoters = pickle.load(open(options.promotLoc, 'r'))
 
 ###################################################################################################
-# Section 2: Locate TATA boxes in promoters
+# Section 1: Locate TATA boxes in promoters
 ###################################################################################################
 #TATA_sequences = ['TATAAA', 'CTATAAATAC', 'TATAAAT', 'TATTAAT', 'TATATAA', 'TTATTT']
 TATA_sequences = ['TATAAAT', 'TATATAT', 'TATATAA', 'TATAAAA']
